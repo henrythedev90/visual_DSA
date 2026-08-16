@@ -39,6 +39,7 @@ const DEFAULT_ROWS = 15;
 const DEFAULT_COLS = 20;
 const DEFAULT_START: Cell = [7, 1];
 const DEFAULT_END: Cell = [7, 18];
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 interface VisualizerState {
   algorithms: AlgorithmInfo[];
@@ -618,7 +619,9 @@ export default function Home() {
             Created by Henry Nuñez
           </p>
         </div>
-        <p className="font-mono text-[11px] text-muted">API {API_BASE}</p>
+        {!IS_PRODUCTION ? (
+          <p className="font-mono text-[11px] text-muted">API {API_BASE}</p>
+        ) : null}
       </header>
 
       <section className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
