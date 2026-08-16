@@ -114,7 +114,8 @@ const initialState: VisualizerState = {
 
 function categoryOf(state: VisualizerState): "sorting" | "graph" | null {
   const alg = state.algorithms.find((item) => item.id === state.algorithmId);
-  if (alg?.category === "graph" || alg?.category === "sorting") return alg.category;
+  if (alg?.category === "graph" || alg?.category === "sorting")
+    return alg.category;
   return null;
 }
 
@@ -135,7 +136,11 @@ function clampCell(cell: Cell, rows: number, cols: number): Cell {
   ];
 }
 
-function resizeGrid(state: VisualizerState, rows: number, cols: number): VisualizerState {
+function resizeGrid(
+  state: VisualizerState,
+  rows: number,
+  cols: number,
+): VisualizerState {
   let start = clampCell(state.start, rows, cols);
   let end = clampCell(state.end, rows, cols);
   if (cellsEqual(start, end)) {
@@ -190,7 +195,8 @@ function reducer(state: VisualizerState, action: Action): VisualizerState {
       return { ...state, walls: action.walls };
     case "PAINT_WALL": {
       const cell: Cell = [action.row, action.col];
-      if (cellsEqual(cell, state.start) || cellsEqual(cell, state.end)) return state;
+      if (cellsEqual(cell, state.start) || cellsEqual(cell, state.end))
+        return state;
       const exists = state.walls.some((wall) => cellsEqual(wall, cell));
       if (action.op === "add" && !exists) {
         return { ...state, walls: [...state.walls, cell] };
@@ -391,7 +397,8 @@ export default function Home() {
               }),
             onStep: (step) =>
               dispatch({ type: "STREAM_SORT_STEP", step: step as TraceStep }),
-            onDone: (totalSteps) => dispatch({ type: "STREAM_DONE", totalSteps }),
+            onDone: (totalSteps) =>
+              dispatch({ type: "STREAM_DONE", totalSteps }),
             onError: (error) => dispatch({ type: "TRACE_ERROR", error }),
           },
         );
@@ -413,7 +420,13 @@ export default function Home() {
   const loadGraphTrace = useCallback(
     async (
       algorithmId: string,
-      grid: { rows: number; cols: number; start: Cell; end: Cell; walls: Cell[] },
+      grid: {
+        rows: number;
+        cols: number;
+        start: Cell;
+        end: Cell;
+        walls: Cell[];
+      },
       useWs: boolean,
     ) => {
       stopStream();
@@ -442,7 +455,10 @@ export default function Home() {
               },
             }),
           onStep: (step) =>
-            dispatch({ type: "STREAM_GRAPH_STEP", step: step as GraphTraceStep }),
+            dispatch({
+              type: "STREAM_GRAPH_STEP",
+              step: step as GraphTraceStep,
+            }),
           onDone: (totalSteps) => dispatch({ type: "STREAM_DONE", totalSteps }),
           onError: (error) => dispatch({ type: "TRACE_ERROR", error }),
         });
@@ -454,7 +470,8 @@ export default function Home() {
       } catch (err) {
         dispatch({
           type: "TRACE_ERROR",
-          error: err instanceof Error ? err.message : "Failed to load graph trace",
+          error:
+            err instanceof Error ? err.message : "Failed to load graph trace",
         });
       }
     },
@@ -537,7 +554,8 @@ export default function Home() {
     : "empty";
 
   const editorGrid = useMemo(
-    () => previewGrid(state.rows, state.cols, state.start, state.end, state.walls),
+    () =>
+      previewGrid(state.rows, state.cols, state.start, state.end, state.walls),
     [state.rows, state.cols, state.start, state.end, state.walls],
   );
   const displayGrid = currentGraphStep?.grid ?? editorGrid;
@@ -591,14 +609,13 @@ export default function Home() {
       <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
-            Sorting & pathfinding · v2
+            Sorting & pathfinding
           </p>
           <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
             DSA Visualizer
           </h1>
           <p className="mt-1 max-w-xl text-sm text-muted">
-            Python traces the algorithm. The browser plays the film. Sorting
-            reuses one array; pathfinding reuses one maze.
+            Created by Henry Nuñez
           </p>
         </div>
         <p className="font-mono text-[11px] text-muted">API {API_BASE}</p>
@@ -770,7 +787,9 @@ export default function Home() {
               <GridVisualizer
                 grid={displayGrid}
                 interactive={!state.playing}
-                showDistances={state.algorithmId === "dijkstra" && state.cols <= 24}
+                showDistances={
+                  state.algorithmId === "dijkstra" && state.cols <= 24
+                }
                 onCellPointerDown={handleCellDown}
                 onCellPointerEnter={handleCellEnter}
               />
