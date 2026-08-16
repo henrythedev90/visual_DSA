@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useReducer } from "react";
 import { AlgorithmPicker } from "@/components/AlgorithmPicker";
 import { ArrayInput } from "@/components/ArrayInput";
 import { BarChart } from "@/components/BarChart";
+import { CodePanel } from "@/components/CodePanel";
 import { ComplexityBadge } from "@/components/ComplexityBadge";
 import { GridEditor } from "@/components/GridEditor";
 import { GridVisualizer } from "@/components/GridVisualizer";
@@ -586,7 +587,7 @@ export default function Home() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
+    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
       <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
@@ -763,18 +764,30 @@ export default function Home() {
           </dl>
         </div>
 
-        <div className="min-h-70 flex-1">
-          {isGraph ? (
-            <GridVisualizer
-              grid={displayGrid}
-              interactive={!state.playing}
-              showDistances={state.algorithmId === "dijkstra" && state.cols <= 24}
-              onCellPointerDown={handleCellDown}
-              onCellPointerEnter={handleCellEnter}
+        <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-2 lg:items-stretch">
+          <div className="min-w-0">
+            {isGraph ? (
+              <GridVisualizer
+                grid={displayGrid}
+                interactive={!state.playing}
+                showDistances={state.algorithmId === "dijkstra" && state.cols <= 24}
+                onCellPointerDown={handleCellDown}
+                onCellPointerEnter={handleCellEnter}
+              />
+            ) : (
+              <BarChart key={resetKey} step={currentSortStep} />
+            )}
+          </div>
+          <div className="min-h-56 min-w-0 lg:min-h-0">
+            <CodePanel
+              algorithmId={state.algorithmId}
+              focus={
+                isGraph
+                  ? (currentGraphStep?.focus ?? "")
+                  : (currentSortStep?.focus ?? "")
+              }
             />
-          ) : (
-            <BarChart key={resetKey} step={currentSortStep} />
-          )}
+          </div>
         </div>
 
         <PlaybackControls

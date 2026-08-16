@@ -37,6 +37,7 @@ def trace_dijkstra(
             rows, cols, start, end, wall_set, frontier, visited, None, distances=dist
         ),
         "message": f"Dijkstra from {start} to {end} — frontier is a min-heap on distance",
+        "focus": "init",
         "visited_count": 0,
         "frontier_count": 1,
     }
@@ -61,6 +62,7 @@ def trace_dijkstra(
                 distances=dist,
             ),
             "message": f"Settling {current} at distance {int(d)}",
+            "focus": "settle",
             "visited_count": len(visited),
             "frontier_count": len(frontier),
         }
@@ -84,6 +86,7 @@ def trace_dijkstra(
                         distances=dist,
                     ),
                     "message": f"Path cell {cell} ({len(painted)} / {len(path)})",
+                    "focus": "path",
                     "visited_count": len(visited) + 1,
                     "frontier_count": len(frontier),
                 }
@@ -101,6 +104,7 @@ def trace_dijkstra(
                     distances=dist,
                 ),
                 "message": f"Dijkstra found a shortest path of cost {int(d)}",
+                "focus": "found",
                 "visited_count": len(visited) + 1,
                 "frontier_count": 0,
             }
@@ -131,6 +135,7 @@ def trace_dijkstra(
                         distances=dist,
                     ),
                     "message": f"Relaxed {nxt} to distance {int(nd)} (via {current})",
+                    "focus": "relax",
                     "visited_count": len(visited),
                     "frontier_count": len(frontier),
                 }
@@ -140,6 +145,7 @@ def trace_dijkstra(
             rows, cols, start, end, wall_set, frontier, visited, None, distances=dist
         ),
         "message": "Dijkstra exhausted the grid — no path exists",
+        "focus": "none",
         "visited_count": len(visited),
         "frontier_count": 0,
     }

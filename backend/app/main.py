@@ -144,6 +144,7 @@ def _build_sort_step(index: int, raw: Dict[str, Any]) -> TraceStep:
         message=public["message"],
         comparisons=public.get("comparisons", 0),
         swaps=public.get("swaps", 0),
+        focus=public.get("focus", ""),
     )
 
 
@@ -155,6 +156,7 @@ def _build_graph_step(index: int, raw: Dict[str, Any]) -> GraphTraceStep:
         message=public["message"],
         visited_count=public.get("visited_count", 0),
         frontier_count=public.get("frontier_count", 0),
+        focus=public.get("focus", ""),
     )
 
 

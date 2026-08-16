@@ -36,6 +36,7 @@ def trace_insertion_sort(arr: List[int]) -> Iterator[Dict]:
         "array": list(a),
         "highlights": _highlights([], sorted_indices),
         "message": f"Starting insertion sort — {a[0]} is a sorted prefix of one",
+        "focus": "start",
         "comparisons": comparisons,
         "swaps": swaps,
     }
@@ -48,6 +49,7 @@ def trace_insertion_sort(arr: List[int]) -> Iterator[Dict]:
             "array": list(a),
             "highlights": _highlights([(i, "comparing")], sorted_indices),
             "message": f"Inserting {key} into the sorted prefix",
+            "focus": "pick",
             "comparisons": comparisons,
             "swaps": swaps,
         }
@@ -62,6 +64,7 @@ def trace_insertion_sort(arr: List[int]) -> Iterator[Dict]:
                     sorted_indices - {j + 1},
                 ),
                 "message": f"Comparing {a[j]} with {key}",
+                "focus": "compare",
                 "comparisons": comparisons,
                 "swaps": swaps,
             }
@@ -76,6 +79,7 @@ def trace_insertion_sort(arr: List[int]) -> Iterator[Dict]:
                         sorted_indices - {j, j + 1},
                     ),
                     "message": f"Shifted {a[j + 1]} one slot to the right",
+                    "focus": "shift",
                     "comparisons": comparisons,
                     "swaps": swaps,
                 }
@@ -91,6 +95,7 @@ def trace_insertion_sort(arr: List[int]) -> Iterator[Dict]:
                 "array": list(a),
                 "highlights": _highlights([(insert_at, "swapping")], sorted_indices),
                 "message": f"Inserted {key} at index {insert_at}",
+                "focus": "insert",
                 "comparisons": comparisons,
                 "swaps": swaps,
             }
@@ -99,6 +104,7 @@ def trace_insertion_sort(arr: List[int]) -> Iterator[Dict]:
                 "array": list(a),
                 "highlights": _highlights([(insert_at, "sorted")], sorted_indices),
                 "message": f"{key} is already in the right place",
+                "focus": "insert",
                 "comparisons": comparisons,
                 "swaps": swaps,
             }
@@ -108,6 +114,7 @@ def trace_insertion_sort(arr: List[int]) -> Iterator[Dict]:
             "array": list(a),
             "highlights": _highlights([], sorted_indices),
             "message": f"Sorted prefix is now {a[: i + 1]}",
+            "focus": "prefix",
             "comparisons": comparisons,
             "swaps": swaps,
         }
@@ -116,6 +123,7 @@ def trace_insertion_sort(arr: List[int]) -> Iterator[Dict]:
         "array": list(a),
         "highlights": _highlights([], set(range(n))),
         "message": "Insertion sort complete",
+        "focus": "done",
         "comparisons": comparisons,
         "swaps": swaps,
     }

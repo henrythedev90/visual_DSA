@@ -39,6 +39,7 @@ def trace_merge_sort(arr: List[int]) -> Iterator[Dict]:
         "array": list(a),
         "highlights": _highlights([], 0, n),
         "message": f"Starting merge sort on {n} elements",
+        "focus": "start",
         "comparisons": comparisons,
         "swaps": swaps,
     }
@@ -57,6 +58,7 @@ def trace_merge_sort(arr: List[int]) -> Iterator[Dict]:
             "message": (
                 f"Merging {left} and {right}"
             ),
+            "focus": "merge",
             "comparisons": comparisons,
             "swaps": swaps,
         }
@@ -68,6 +70,7 @@ def trace_merge_sort(arr: List[int]) -> Iterator[Dict]:
                 "array": list(a),
                 "highlights": _highlights([(k, "merging")], lo, hi),
                 "message": f"Comparing {left_val} and {right_val}",
+                "focus": "compare",
                 "comparisons": comparisons,
                 "swaps": swaps,
             }
@@ -85,6 +88,7 @@ def trace_merge_sort(arr: List[int]) -> Iterator[Dict]:
                 "array": list(a),
                 "highlights": _highlights([(k, "merging")], lo, hi),
                 "message": f"Placed {chosen} at index {k}",
+                "focus": "place",
                 "comparisons": comparisons,
                 "swaps": swaps,
             }
@@ -97,6 +101,7 @@ def trace_merge_sort(arr: List[int]) -> Iterator[Dict]:
                 "array": list(a),
                 "highlights": _highlights([(k, "merging")], lo, hi),
                 "message": f"Placed remaining {left[i]} at index {k}",
+                "focus": "remainder",
                 "comparisons": comparisons,
                 "swaps": swaps,
             }
@@ -110,6 +115,7 @@ def trace_merge_sort(arr: List[int]) -> Iterator[Dict]:
                 "array": list(a),
                 "highlights": _highlights([(k, "merging")], lo, hi),
                 "message": f"Placed remaining {right[j]} at index {k}",
+                "focus": "remainder",
                 "comparisons": comparisons,
                 "swaps": swaps,
             }
@@ -120,6 +126,7 @@ def trace_merge_sort(arr: List[int]) -> Iterator[Dict]:
             "array": list(a),
             "highlights": _highlights([], lo, hi),
             "message": f"Merged subarray [{lo}, {hi}) is now {a[lo:hi]}",
+            "focus": "merged",
             "comparisons": comparisons,
             "swaps": swaps,
         }
@@ -133,6 +140,7 @@ def trace_merge_sort(arr: List[int]) -> Iterator[Dict]:
                     "array": list(a),
                     "highlights": _highlights([(lo, "merging")], lo, hi),
                     "message": f"{a[lo]} is a run of length 1 — already sorted",
+                    "focus": "base",
                     "comparisons": comparisons,
                     "swaps": swaps,
                 }
@@ -143,6 +151,7 @@ def trace_merge_sort(arr: List[int]) -> Iterator[Dict]:
             "array": list(a),
             "highlights": _highlights([], lo, hi),
             "message": f"Splitting indices [{lo}, {hi}) at {mid}",
+            "focus": "split",
             "comparisons": comparisons,
             "swaps": swaps,
         }
@@ -156,6 +165,7 @@ def trace_merge_sort(arr: List[int]) -> Iterator[Dict]:
         "array": list(a),
         "highlights": [{"index": i, "role": "sorted"} for i in range(n)],
         "message": "Merge sort complete",
+        "focus": "done",
         "comparisons": comparisons,
         "swaps": swaps,
     }

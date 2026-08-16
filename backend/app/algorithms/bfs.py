@@ -31,6 +31,7 @@ def trace_bfs(
     yield {
         "grid": snapshot(rows, cols, start, end, wall_set, frontier, visited, None),
         "message": f"BFS from {start} to {end} — frontier is a queue",
+        "focus": "init",
         "visited_count": 0,
         "frontier_count": 1,
     }
@@ -44,6 +45,7 @@ def trace_bfs(
                 rows, cols, start, end, wall_set, frontier, visited, current
             ),
             "message": f"Visiting {current}",
+            "focus": "visit",
             "visited_count": len(visited),
             "frontier_count": len(frontier),
         }
@@ -66,6 +68,7 @@ def trace_bfs(
                         path=painted,
                     ),
                     "message": f"Path cell {cell} ({len(painted)} / {len(path)})",
+                    "focus": "path",
                     "visited_count": len(visited) + 1,
                     "frontier_count": len(frontier),
                 }
@@ -82,6 +85,7 @@ def trace_bfs(
                     path=set(path),
                 ),
                 "message": f"BFS found a shortest path of {len(path) - 1} steps",
+                "focus": "found",
                 "visited_count": len(visited) + 1,
                 "frontier_count": 0,
             }
@@ -100,6 +104,7 @@ def trace_bfs(
                     rows, cols, start, end, wall_set, frontier, visited, current
                 ),
                 "message": f"Queued {nxt} (discovered from {current})",
+                "focus": "enqueue",
                 "visited_count": len(visited),
                 "frontier_count": len(frontier),
             }
@@ -107,6 +112,7 @@ def trace_bfs(
     yield {
         "grid": snapshot(rows, cols, start, end, wall_set, frontier, visited, None),
         "message": "BFS exhausted the grid — no path exists",
+        "focus": "none",
         "visited_count": len(visited),
         "frontier_count": 0,
     }

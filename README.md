@@ -60,7 +60,7 @@ Open [http://localhost:3000](http://localhost:3000). CORS is wide open for local
 
 ## How a run works
 
-**Sorting** — pick an algorithm, enter or randomize an array, fetch one trace, play it by step index. Switching sorting algorithms **reuses the same array**.
+**Sorting** — pick an algorithm, enter or randomize an array, fetch one trace, play it by step index. Switching sorting algorithms **reuses the same array**. The visual and a textbook Python listing share the panel; the current step highlights the matching line of code.
 
 **Graph** — paint walls on the grid (or scatter them), place start/end, then visualize. Switching BFS / DFS / Dijkstra **reuses the same maze**. Click a cell to toggle walls; use the Start / End tools to move the terminals.
 

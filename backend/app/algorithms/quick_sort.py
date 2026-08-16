@@ -45,6 +45,7 @@ def trace_quick_sort(arr: List[int]) -> Iterator[Dict]:
         "array": list(a),
         "highlights": _highlights([], 0, n - 1, sorted_indices),
         "message": f"Starting quick sort on {n} elements",
+        "focus": "start",
         "comparisons": comparisons,
         "swaps": swaps,
     }
@@ -68,6 +69,7 @@ def trace_quick_sort(arr: List[int]) -> Iterator[Dict]:
                 sorted_indices,
             ),
             "message": f"Partitioning [{lo}, {hi}] with pivot {pivot_value}",
+            "focus": "pivot",
             "comparisons": comparisons,
             "swaps": swaps,
         }
@@ -85,6 +87,7 @@ def trace_quick_sort(arr: List[int]) -> Iterator[Dict]:
                     sorted_indices,
                 ),
                 "message": f"Comparing {a[j]} with pivot {pivot_value}",
+                "focus": "compare",
                 "comparisons": comparisons,
                 "swaps": swaps,
             }
@@ -103,6 +106,7 @@ def trace_quick_sort(arr: List[int]) -> Iterator[Dict]:
                             sorted_indices,
                         ),
                         "message": f"Swapped {left} and {right} — {right} belongs on the left of the pivot",
+                        "focus": "swap",
                         "comparisons": comparisons,
                         "swaps": swaps,
                     }
@@ -122,6 +126,7 @@ def trace_quick_sort(arr: List[int]) -> Iterator[Dict]:
                     sorted_indices,
                 ),
                 "message": f"Moved pivot {pivot_value} to index {i}",
+                "focus": "place_pivot",
                 "comparisons": comparisons,
                 "swaps": swaps,
             }
@@ -131,6 +136,7 @@ def trace_quick_sort(arr: List[int]) -> Iterator[Dict]:
             "array": list(a),
             "highlights": _highlights([(i, "sorted")], lo, hi, sorted_indices),
             "message": f"Pivot {a[i]} is in its final position at index {i}",
+            "focus": "place_pivot",
             "comparisons": comparisons,
             "swaps": swaps,
             "_pivot_index": i,
@@ -147,6 +153,7 @@ def trace_quick_sort(arr: List[int]) -> Iterator[Dict]:
                 "array": list(a),
                 "highlights": _highlights([], lo, hi, sorted_indices),
                 "message": f"{a[lo]} is a partition of one — already in place",
+                "focus": "base",
                 "comparisons": comparisons,
                 "swaps": swaps,
             }
@@ -156,6 +163,7 @@ def trace_quick_sort(arr: List[int]) -> Iterator[Dict]:
             "array": list(a),
             "highlights": _highlights([], lo, hi, sorted_indices),
             "message": f"Quick-sorting subarray [{lo}, {hi}]",
+            "focus": "recurse",
             "comparisons": comparisons,
             "swaps": swaps,
         }
@@ -175,6 +183,7 @@ def trace_quick_sort(arr: List[int]) -> Iterator[Dict]:
         "array": list(a),
         "highlights": [{"index": i, "role": "sorted"} for i in range(n)],
         "message": "Quick sort complete",
+        "focus": "done",
         "comparisons": comparisons,
         "swaps": swaps,
     }

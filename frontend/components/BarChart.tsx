@@ -104,8 +104,8 @@ export function BarChart({ step }: BarChartProps) {
   const showLabels = visibleBars.length > 0 && visibleBars.length <= 24;
 
   return (
-    <div className="flex h-full min-h-70 flex-col gap-4">
-      <div className="relative h-72 w-full sm:h-80">
+    <div className="flex h-full min-h-56 flex-col gap-3">
+      <div className="relative h-56 w-full sm:h-64">
         {visibleBars.length === 0 ? (
           <div className="flex h-full w-full items-center justify-center text-sm text-muted">
             Load a trace to begin.

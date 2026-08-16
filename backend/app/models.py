@@ -37,6 +37,7 @@ class TraceStep(BaseModel):
     message: str  # human-readable caption, e.g. "Comparing 5 and 3"
     comparisons: int = 0  # running total
     swaps: int = 0  # running total (includes shifts / placements)
+    focus: str = ""  # id of the textbook-code line the UI should highlight
 
 
 class TraceResponse(BaseModel):
@@ -89,6 +90,7 @@ class GraphTraceStep(BaseModel):
     message: str
     visited_count: int = 0
     frontier_count: int = 0
+    focus: str = ""  # id of the textbook-code line the UI should highlight
 
 
 class GraphTraceResponse(BaseModel):

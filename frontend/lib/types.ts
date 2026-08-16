@@ -20,6 +20,7 @@ export interface TraceStep {
   message: string;
   comparisons: number;
   swaps: number;
+  focus: string;
 }
 
 export interface TraceResponse {
@@ -66,6 +67,7 @@ export interface GraphTraceStep {
   message: string;
   visited_count: number;
   frontier_count: number;
+  focus: string;
 }
 
 export interface GraphTraceResponse {

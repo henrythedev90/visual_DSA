@@ -35,6 +35,7 @@ def trace_bubble_sort(arr: List[int]) -> Iterator[Dict]:
         "array": list(a),
         "highlights": [],
         "message": f"Starting bubble sort on {n} elements",
+        "focus": "start",
         "comparisons": comparisons,
         "swaps": swaps,
     }
@@ -54,6 +55,7 @@ def trace_bubble_sort(arr: List[int]) -> Iterator[Dict]:
                     sorted_indices,
                 ),
                 "message": f"Comparing {left} and {right}",
+                "focus": "compare",
                 "comparisons": comparisons,
                 "swaps": swaps,
             }
@@ -69,6 +71,7 @@ def trace_bubble_sort(arr: List[int]) -> Iterator[Dict]:
                         sorted_indices,
                     ),
                     "message": f"Swapped {left} and {right}",
+                    "focus": "swap",
                     "comparisons": comparisons,
                     "swaps": swaps,
                 }
@@ -80,6 +83,7 @@ def trace_bubble_sort(arr: List[int]) -> Iterator[Dict]:
             "array": list(a),
             "highlights": _highlights([], sorted_indices),
             "message": f"{a[finalized]} is in its final position",
+            "focus": "finalize",
             "comparisons": comparisons,
             "swaps": swaps,
         }
@@ -92,6 +96,7 @@ def trace_bubble_sort(arr: List[int]) -> Iterator[Dict]:
                 "array": list(a),
                 "highlights": _highlights([], sorted_indices),
                 "message": "No swaps this pass — the rest of the array is already sorted",
+                "focus": "already_sorted",
                 "comparisons": comparisons,
                 "swaps": swaps,
             }
@@ -103,6 +108,7 @@ def trace_bubble_sort(arr: List[int]) -> Iterator[Dict]:
         "array": list(a),
         "highlights": _highlights([], sorted_indices),
         "message": "Bubble sort complete",
+        "focus": "done",
         "comparisons": comparisons,
         "swaps": swaps,
     }

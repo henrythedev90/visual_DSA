@@ -29,6 +29,7 @@ def trace_dfs(
     yield {
         "grid": snapshot(rows, cols, start, end, wall_set, frontier, visited, None),
         "message": f"DFS from {start} to {end} — frontier is a stack",
+        "focus": "init",
         "visited_count": 0,
         "frontier_count": 1,
     }
@@ -45,6 +46,7 @@ def trace_dfs(
                 rows, cols, start, end, wall_set, frontier, visited, current
             ),
             "message": f"Visiting {current}",
+            "focus": "visit",
             "visited_count": len(visited),
             "frontier_count": len(frontier),
         }
@@ -67,6 +69,7 @@ def trace_dfs(
                         path=painted,
                     ),
                     "message": f"Path cell {cell} ({len(painted)} / {len(path)})",
+                    "focus": "path",
                     "visited_count": len(visited) + 1,
                     "frontier_count": len(frontier),
                 }
@@ -86,6 +89,7 @@ def trace_dfs(
                     f"DFS found a path of {len(path) - 1} steps "
                     "(not necessarily shortest)"
                 ),
+                "focus": "found",
                 "visited_count": len(visited) + 1,
                 "frontier_count": 0,
             }
@@ -106,6 +110,7 @@ def trace_dfs(
                     rows, cols, start, end, wall_set, frontier, visited, current
                 ),
                 "message": f"Pushed {nxt} onto the stack (from {current})",
+                "focus": "push",
                 "visited_count": len(visited),
                 "frontier_count": len(frontier),
             }
@@ -113,6 +118,7 @@ def trace_dfs(
     yield {
         "grid": snapshot(rows, cols, start, end, wall_set, frontier, visited, None),
         "message": "DFS exhausted the grid — no path exists",
+        "focus": "none",
         "visited_count": len(visited),
         "frontier_count": 0,
     }
