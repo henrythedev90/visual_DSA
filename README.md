@@ -1,14 +1,21 @@
 # DSA Algorithm Visualizer
 
-Web visualizer for classic sorting algorithms. A **Python/FastAPI** backend runs the algorithm and records a step-by-step **trace** (array snapshot, highlights, caption, running comparison/swap counts). A **Next.js** frontend fetches that trace once and animates through it in the browser.
+Web visualizer for classic **sorting** and **pathfinding** algorithms. A **Python/FastAPI** backend runs the algorithm and records a step-by-step **trace**. A **Next.js** frontend fetches that trace (REST) or streams it (WebSocket) and animates through it in the browser.
 
-This split is intentional: algorithm correctness lives in Python (good DSA practice); animation lives in React (playback, colors, motion).
+This split is intentional: algorithm correctness lives in Python; animation lives in React.
 
 ```
 dsa-visualizer/
   backend/          FastAPI — traces computed on the fly, no database
   frontend/         Next.js App Router — plays a trace by step index
 ```
+
+Two trace *shapes* share one registry:
+
+| Category | Algorithms | Visual |
+|----------|------------|--------|
+| `sorting` | bubble, insertion, merge, quick | bar chart |
+| `graph` | BFS, DFS, Dijkstra | grid |
 
 ## Prerequisites
 
@@ -29,15 +36,15 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-Check it:
-
 - Health: [http://localhost:8000/api/health](http://localhost:8000/api/health)
 - Interactive docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ```bash
 curl "http://localhost:8000/api/algorithms"
 curl "http://localhost:8000/api/trace/bubble-sort?array=5,3,8,1"
-curl "http://localhost:8000/api/trace/quick-sort?size=12"
+curl -X POST "http://localhost:8000/api/graph-trace/bfs" \
+  -H "Content-Type: application/json" \
+  -d '{"rows":8,"cols":12,"start":[1,1],"end":[6,10],"walls":[[2,2],[3,2]]}'
 ```
 
 ### 2. Frontend (port 3000)
@@ -49,56 +56,58 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The UI calls `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`). CORS is wide open for local development — tighten `allow_origins` in `backend/app/main.py` before any real deploy.
+Open [http://localhost:3000](http://localhost:3000). CORS is wide open for local development — tighten `allow_origins` in `backend/app/main.py` before any real deploy.
 
 ## How a run works
 
-1. Pick an algorithm (list comes from `GET /api/algorithms`, which is built from a registry — adding a new algorithm does not require route changes).
-2. Enter a comma-separated array, or randomize with the size slider (5–50 on the UI; the API accepts 2–100).
-3. The frontend fetches **one** trace: `GET /api/trace/{id}?array=5,3,8,1`.
-4. Playback is entirely client-side: current step index, play/pause timer, speed (delay between steps). Stepping does not re-fetch.
+**Sorting** — pick an algorithm, enter or randomize an array, fetch one trace, play it by step index. Switching sorting algorithms **reuses the same array**.
 
-Switching algorithms **reuses the same array**, so you can compare bubble vs insertion vs merge vs quick on identical input.
+**Graph** — paint walls on the grid (or scatter them), place start/end, then visualize. Switching BFS / DFS / Dijkstra **reuses the same maze**. Click a cell to toggle walls; use the Start / End tools to move the terminals.
+
+**WebSocket** — check “Stream over WebSocket” to receive steps as the generator yields them (`WS /ws/trace/{algorithm}`) instead of waiting for a full JSON blob. Incoming steps are buffered, so step-back still works on what has arrived. PlaybackControls are shared; they do not care which trace shape is playing.
 
 ## API
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/api/health` | `{ "status": "ok" }` |
-| `GET` | `/api/algorithms` | Registry metadata for the picker |
-| `GET` | `/api/trace/{algorithm}?array=5,3,8,1` | Trace for an explicit array |
-| `GET` | `/api/trace/{algorithm}?size=15` | Trace for a random array (default size 15) |
-| `POST` | `/api/trace/{algorithm}` | Same, JSON body `{ "array": [...] }` or `{ "size": 20 }` |
+| `GET` | `/api/algorithms` | Registry metadata (both categories) |
+| `GET` | `/api/trace/{algorithm}?array=5,3,8,1` | Sorting trace |
+| `GET` | `/api/trace/{algorithm}?size=15` | Sorting trace, random array |
+| `POST` | `/api/trace/{algorithm}` | Sorting trace, JSON `{ "array": [...] }` or `{ "size": 20 }` |
+| `POST` | `/api/graph-trace/{algorithm}` | Graph trace, JSON `GraphTraceRequest` |
+| `WS` | `/ws/trace/{algorithm}` | Stream either shape, one step at a time |
 
-Unknown algorithm ids return **404** listing the valid ids. Arrays outside 2–100 elements return **400**.
+Graph uses a **parallel** REST path instead of overloading `POST /api/trace`. The sorting POST body and the graph POST body are unrelated; keeping them on one URL would muddy OpenAPI and risk breaking v1 clients.
 
-Each trace step includes:
+Unknown algorithm ids return **404**. Arrays outside 2–100 elements, or grids outside 5×5–50×50, return **400**. Start/end must be in-bounds, distinct, and not on a wall. Walls are deduplicated.
 
-- `array` — snapshot at that moment
-- `highlights` — `{ index, role }` where role is `comparing` \| `swapping` \| `sorted` \| `pivot` \| `merging` \| `active_range`
-- `message` — caption shown under the chart
-- `comparisons` / `swaps` — running totals (`swaps` also counts insertion shifts and merge placements)
+### WebSocket protocol
 
-Trace generators are Python **generators** (`yield`, not `return`) so a later v2 can stream steps over a WebSocket without rewriting the algorithms.
+Client connects, then sends one JSON message (`TraceRequest` or `GraphTraceRequest`). Server replies:
+
+1. `{ "type": "meta", "category": "sorting"|"graph", ...header fields }`
+2. `{ "type": "step", "data": <TraceStep or GraphTraceStep> }` (repeated)
+3. `{ "type": "done", "total_steps": N }`
+
+Errors: `{ "type": "error", "detail": "..." }`.
+
+That `type` wrapper is a small addition on top of the raw step models so the client can tell meta / step / done apart. The step `data` is still the same Pydantic shape as REST.
 
 ## Adding a new algorithm
 
-1. Add `backend/app/algorithms/<name>.py` with `trace_<name>(arr) -> Iterator[dict]`.
-2. Register it in `backend/app/algorithms/__init__.py` (`ALGORITHM_REGISTRY`).
-3. The list endpoint and `{algorithm}` routes pick it up automatically. Mirror any new highlight roles in `frontend/lib/types.ts` and the bar-color map.
+**Sorting:** `trace_<name>(arr) -> Iterator[dict]`, register with `category: "sorting"`.
 
-## Bar colors
+**Graph:** `trace_<name>(rows, cols, start, end, walls) -> Iterator[dict]`, register with `category: "graph"`. Shared snapshot helpers live in `backend/app/algorithms/grid.py`.
 
-| Role | Meaning |
-|------|---------|
-| Yellow | comparing |
-| Red | swapping / shifting |
-| Green | sorted (final position, or insertion-sort prefix) |
-| Purple | quicksort pivot |
-| Teal | merge-sort merge |
-| Steel blue | active recursive range |
-| Gray | not highlighted (dimmed outside the active range) |
+The list endpoint picks up either automatically. Mirror new roles/states in `frontend/lib/types.ts`.
 
-## v1 scope
+## Colors
 
-Sorting only. No graph/pathfinding views, no WebSocket streaming, no database. Those are leftover room in the design, not missing features.
+**Bars (sorting)** — yellow comparing, red swapping, green sorted, purple pivot, teal merging, steel-blue active range, gray otherwise.
+
+**Grid (graph)** — green start, red end, black wall, light-blue frontier, blue visited, orange current, gold path.
+
+## Complexity
+
+The UI shows time/space Big-O from a static frontend table (`ComplexityBadge`), keyed by algorithm id — not a backend endpoint.

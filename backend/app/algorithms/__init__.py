@@ -6,7 +6,10 @@ visualizer is: write `trace_<name>()`, then register it here.
 
 from typing import Any, Callable, Dict
 
+from app.algorithms.bfs import trace_bfs
 from app.algorithms.bubble_sort import trace_bubble_sort
+from app.algorithms.dfs import trace_dfs
+from app.algorithms.dijkstra import trace_dijkstra
 from app.algorithms.insertion_sort import trace_insertion_sort
 from app.algorithms.merge_sort import trace_merge_sort
 from app.algorithms.quick_sort import trace_quick_sort
@@ -54,8 +57,42 @@ ALGORITHM_REGISTRY: Dict[str, Dict[str, Any]] = {
         ),
         "trace_fn": trace_quick_sort,
     },
+    "bfs": {
+        "name": "BFS",
+        "category": "graph",
+        "description": (
+            "Breadth-first search expands the frontier in waves. On an "
+            "unweighted grid the first time we reach the end is a shortest "
+            "path. Frontier is a queue."
+        ),
+        "trace_fn": trace_bfs,
+    },
+    "dfs": {
+        "name": "DFS",
+        "category": "graph",
+        "description": (
+            "Depth-first search dives down one corridor before backtracking. "
+            "It finds a path if one exists, but not necessarily a short one. "
+            "Frontier is a stack."
+        ),
+        "trace_fn": trace_dfs,
+    },
+    "dijkstra": {
+        "name": "Dijkstra",
+        "category": "graph",
+        "description": (
+            "Dijkstra settles nodes in order of increasing distance, using a "
+            "min-heap. With uniform edge weights it matches BFS; the extra "
+            "machinery is what you need once costs differ."
+        ),
+        "trace_fn": trace_dijkstra,
+    },
 }
 
 
 def get_trace_fn(algorithm_id: str) -> Callable:
     return ALGORITHM_REGISTRY[algorithm_id]["trace_fn"]
+
+
+def get_category(algorithm_id: str) -> str:
+    return ALGORITHM_REGISTRY[algorithm_id]["category"]

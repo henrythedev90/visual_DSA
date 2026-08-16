@@ -43,9 +43,7 @@ function roleForIndex(
   highlights: Highlight[],
   index: number,
 ): HighlightRole | null {
-  const roles = highlights
-    .filter((h) => h.index === index)
-    .map((h) => h.role);
+  const roles = highlights.filter((h) => h.index === index).map((h) => h.role);
   for (const role of ROLE_PRIORITY) {
     if (roles.includes(role)) return role;
   }
@@ -56,15 +54,30 @@ function reconcile(prev: Bar[] | null, values: number[]): Bar[] {
   if (!prev || prev.length === 0) {
     return values.map((value, i) => ({ id: `el-${i}`, value }));
   }
+
   const available = [...prev];
-  return values.map((value) => {
+  const next: (Bar | null)[] = values.map(() => null);
+
+  // Pass 1: keep identity when the same value is still on screen so swaps
+  // can slide (bubble / insertion / quick, and merge when nothing was overwritten).
+  values.forEach((value, i) => {
     const idx = available.findIndex((bar) => bar.value === value);
     if (idx >= 0) {
       const [matched] = available.splice(idx, 1);
-      return matched;
+      next[i] = matched;
     }
-    return { id: `el-extra-${value}-${available.length}`, value };
   });
+
+  // Pass 2: merge sort writes into a backing array, so a value can appear
+  // twice while another disappears. Reuse leftover bars at those slots so
+  // keys stay unique and the overwritten bar animates height instead of remounting.
+  values.forEach((value, i) => {
+    if (next[i]) return;
+    const leftover = available.shift();
+    next[i] = leftover ? { ...leftover, value } : { id: `el-new-${i}`, value };
+  });
+
+  return next as Bar[];
 }
 
 interface BarChartProps {
@@ -91,7 +104,7 @@ export function BarChart({ step }: BarChartProps) {
   const showLabels = visibleBars.length > 0 && visibleBars.length <= 24;
 
   return (
-    <div className="flex h-full min-h-[280px] flex-col gap-4">
+    <div className="flex h-full min-h-70 flex-col gap-4">
       <div className="relative h-72 w-full sm:h-80">
         {visibleBars.length === 0 ? (
           <div className="flex h-full w-full items-center justify-center text-sm text-muted">
@@ -99,11 +112,9 @@ export function BarChart({ step }: BarChartProps) {
           </div>
         ) : (
           <LayoutGroup>
-            <div className="flex h-full w-full items-stretch gap-[3px] sm:gap-1.5">
+            <div className="flex h-full w-full items-stretch gap-0.75 sm:gap-1.5">
               {visibleBars.map((bar, index) => {
-                const role = step
-                  ? roleForIndex(step.highlights, index)
-                  : null;
+                const role = step ? roleForIndex(step.highlights, index) : null;
                 const color = role ? ROLE_COLOR[role] : UNHIGHLIGHTED;
                 const heightPct = ((bar.value - min) / span) * 100;
 
@@ -111,6 +122,7 @@ export function BarChart({ step }: BarChartProps) {
                   <motion.div
                     key={bar.id}
                     layout
+                    layoutId={bar.id}
                     className="flex h-full min-w-0 flex-1 flex-col"
                     transition={{ type: "spring", stiffness: 380, damping: 34 }}
                   >

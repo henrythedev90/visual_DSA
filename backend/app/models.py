@@ -49,7 +49,7 @@ class TraceResponse(BaseModel):
 class AlgorithmInfo(BaseModel):
     id: str
     name: str
-    category: str  # "sorting" for v1
+    category: str  # "sorting" | "graph"
     description: str
 
 
@@ -58,3 +58,53 @@ class TraceRequest(BaseModel):
 
     array: Optional[List[int]] = None
     size: Optional[int] = None
+
+
+# --- Graph / pathfinding (v2). Sorting models above are unchanged. ---
+
+Cell = tuple[int, int]
+
+
+class NodeState(str, Enum):
+    UNVISITED = "unvisited"
+    FRONTIER = "frontier"  # in the queue/stack/priority-queue, not yet visited
+    VISITED = "visited"
+    CURRENT = "current"  # node being processed right now
+    PATH = "path"  # part of the final found path
+    WALL = "wall"  # obstacle, not traversable
+    START = "start"
+    END = "end"
+
+
+class GridNode(BaseModel):
+    row: int
+    col: int
+    state: NodeState
+    distance: Optional[float] = None  # running distance/cost, for Dijkstra
+
+
+class GraphTraceStep(BaseModel):
+    step: int
+    grid: List[List[GridNode]]  # full grid state at this step
+    message: str
+    visited_count: int = 0
+    frontier_count: int = 0
+
+
+class GraphTraceResponse(BaseModel):
+    algorithm: str
+    rows: int
+    cols: int
+    start: Cell
+    end: Cell
+    walls: List[Cell]
+    total_steps: int
+    steps: List[GraphTraceStep]
+
+
+class GraphTraceRequest(BaseModel):
+    rows: int = 20
+    cols: int = 20
+    start: Cell
+    end: Cell
+    walls: List[Cell] = []
