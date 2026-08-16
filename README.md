@@ -17,6 +17,8 @@ Two trace *shapes* share one registry:
 | `sorting` | bubble, insertion, merge, quick | bar chart |
 | `graph` | BFS, DFS, Dijkstra | grid |
 
+The main panel is split **50/50**: visual on the left, textbook source on the right. As playback advances, the matching line of code is highlighted. You can toggle the listing between **Python, JavaScript, Java, and C++**; the highlight stays on the same logical step in every language.
+
 ## Prerequisites
 
 - Python 3.11+
@@ -60,9 +62,11 @@ Open [http://localhost:3000](http://localhost:3000). CORS is wide open for local
 
 ## How a run works
 
-**Sorting** — pick an algorithm, enter or randomize an array, fetch one trace, play it by step index. Switching sorting algorithms **reuses the same array**. The visual and a textbook Python listing share the panel; the current step highlights the matching line of code.
+**Sorting** — pick an algorithm, enter or randomize an array, fetch one trace, play it by step index. Switching sorting algorithms **reuses the same array**.
 
 **Graph** — paint walls on the grid (or scatter them), place start/end, then visualize. Switching BFS / DFS / Dijkstra **reuses the same maze**. Click a cell to toggle walls; use the Start / End tools to move the terminals.
+
+**Code panel** — each trace step includes a `focus` id (for example `compare`, `swap`, `visit`). The listings in `frontend/lib/algorithmCode.ts` tag the equivalent line with `#@id` (Python) or `// @id` (JS / Java / C++). `CodePanel` strips those tags for display and highlights the live line. Language choice is remembered in `localStorage`. The listings are clean teaching versions, not the backend generators (those are full of `yield` / snapshot code).
 
 **WebSocket** — check “Stream over WebSocket” to receive steps as the generator yields them (`WS /ws/trace/{algorithm}`) instead of waiting for a full JSON blob. Incoming steps are buffered, so step-back still works on what has arrived. PlaybackControls are shared; they do not care which trace shape is playing.
 
@@ -82,6 +86,8 @@ Graph uses a **parallel** REST path instead of overloading `POST /api/trace`. Th
 
 Unknown algorithm ids return **404**. Arrays outside 2–100 elements, or grids outside 5×5–50×50, return **400**. Start/end must be in-bounds, distinct, and not on a wall. Walls are deduplicated.
 
+Each step includes `message`, running stats (`comparisons` / `swaps` or `visited_count` / `frontier_count`), and `focus` for the code panel.
+
 ### WebSocket protocol
 
 Client connects, then sends one JSON message (`TraceRequest` or `GraphTraceRequest`). Server replies:
@@ -99,6 +105,8 @@ That `type` wrapper is a small addition on top of the raw step models so the cli
 **Sorting:** `trace_<name>(arr) -> Iterator[dict]`, register with `category: "sorting"`.
 
 **Graph:** `trace_<name>(rows, cols, start, end, walls) -> Iterator[dict]`, register with `category: "graph"`. Shared snapshot helpers live in `backend/app/algorithms/grid.py`.
+
+Every yielded dict should set `focus` to a stable id. Then add matching listings for all four languages in `frontend/lib/algorithmCode.ts` (same ids on the corresponding lines).
 
 The list endpoint picks up either automatically. Mirror new roles/states in `frontend/lib/types.ts`.
 
