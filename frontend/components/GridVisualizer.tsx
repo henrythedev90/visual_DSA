@@ -5,12 +5,12 @@ import { motion } from "framer-motion";
 import type { GridNode, NodeState } from "@/lib/types";
 
 const STATE_COLOR: Record<NodeState, string> = {
-  unvisited: "#2a3344",
+  unvisited: "var(--cell-unvisited)",
   frontier: "#7dd3fc",
   visited: "#3b82f6",
   current: "#f59e0b",
-  path: "#e4b44c",
-  wall: "#07090d",
+  path: "var(--gold)",
+  wall: "var(--cell-wall)",
   start: "#3ecf8e",
   end: "#e85d4c",
 };

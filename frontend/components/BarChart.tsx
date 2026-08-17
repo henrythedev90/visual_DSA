@@ -14,7 +14,7 @@ const ROLE_COLOR: Record<HighlightRole, string> = {
   active_range: "#4a6fa5",
 };
 
-const UNHIGHLIGHTED = "#3d4554";
+const UNHIGHLIGHTED = "var(--bar-idle)";
 
 const ROLE_PRIORITY: HighlightRole[] = [
   "swapping",

@@ -10,6 +10,7 @@ import { ComplexityBadge } from "@/components/ComplexityBadge";
 import { GridEditor } from "@/components/GridEditor";
 import { GridVisualizer } from "@/components/GridVisualizer";
 import { PlaybackControls } from "@/components/PlaybackControls";
+import { ThemeControls } from "@/components/ThemeControls";
 import {
   API_BASE,
   cellsEqual,
@@ -619,9 +620,12 @@ export default function Home() {
             Created by Henry Nuñez
           </p>
         </div>
-        {!IS_PRODUCTION ? (
-          <p className="font-mono text-[11px] text-muted">API {API_BASE}</p>
-        ) : null}
+        <div className="flex flex-col items-start gap-2 sm:items-end">
+          <ThemeControls />
+          {!IS_PRODUCTION ? (
+            <p className="font-mono text-[11px] text-muted">API {API_BASE}</p>
+          ) : null}
+        </div>
       </header>
 
       <section className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
